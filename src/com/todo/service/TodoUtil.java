@@ -1,11 +1,8 @@
 package com.todo.service;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Writer;
 import java.util.*;
 
@@ -19,23 +16,23 @@ public class TodoUtil {
 		Scanner sc = new Scanner(System.in);
 
 		System.out.print("[항목 추가]\n" + "제목을 입력하세요 > ");
-
 		title = sc.nextLine();
-		if (list.isDuplicate(title)) {
-			System.out.print(title + "(이)가 이미 존재합니다!");
-			return;
-		}
+//		if (list.isDuplicate(title)) {
+//			System.out.print(title + "(이)가 이미 존재합니다!");
+//			return;
+//		}
 
-		System.out.print("내용을 입력하세요 > ");
-		desc = sc.nextLine().trim();
 		System.out.print("카테고리를 입력하세요 > ");
 		String category = sc.nextLine().trim();
+		System.out.print("내용을 입력하세요 > ");
+		desc = sc.nextLine().trim();
 		System.out.print("마감일자를 입력하세요 > ");
 		String due_date = sc.nextLine().trim();
 
-		TodoItem t = new TodoItem(title, desc, null, category, due_date);
-		list.addItem(t);
-		System.out.println("새 항목이 성공적으로 추가 되었습니다!");
+		TodoItem t = new TodoItem(title, desc, category, due_date);
+		if (list.addItem(t) > 0)
+			System.out.println("새 항목이 성공적으로 추가 되었습니다!");
+
 	}
 
 	public static void deleteItem(TodoList l) {
@@ -43,16 +40,10 @@ public class TodoUtil {
 		Scanner sc = new Scanner(System.in);
 
 		System.out.print("[항목 삭제]\n" + "제거할 항목의 번호를 입력하세요 > ");
-
 		int select = sc.nextInt();
 
-		if (select > l.getList().size()) {
-			System.out.println("해당 번호는 존재하지 않습니다.");
-			return;
-		}
-
-		l.deleteItem(l.getList().get(select - 1));
-		System.out.println("성공적으로 삭제되었습니다!");
+		if (l.deleteItem(select) > 0)
+			System.out.println("성공적으로 삭제되었습니다!");
 	}
 
 	public static void updateItem(TodoList l) {
@@ -70,10 +61,10 @@ public class TodoUtil {
 
 		System.out.print("새 제목 > ");
 		String new_title = sc.nextLine();
-		if (l.isDuplicate(new_title)) {
-			System.out.print(new_title + "(이)가 이미 존재합니다!");
-			return;
-		}
+//		if (l.isDuplicate(new_title)) {
+//			System.out.print(new_title + "(이)가 이미 존재합니다!");
+//			return;
+//		}
 		System.out.print("새 카테고리 > ");
 		String new_category = sc.nextLine().trim();
 		System.out.print("새 내용 > ");
@@ -81,43 +72,43 @@ public class TodoUtil {
 		System.out.print("새 마감일자 > ");
 		String new_due_date = sc.nextLine().trim();
 
-		l.deleteItem(l.getList().get(select - 1));
-		TodoItem t = new TodoItem(new_title, new_description, null, new_category, new_due_date);
-		l.addItem(t);
-		System.out.println("항목이 성공적으로 수정되었습니다!");
+		TodoItem t = new TodoItem(new_title, new_description, new_category, new_due_date);
+		t.setId(select);
+		if (l.updateItem(t) > 0)
+			System.out.println("항목이 성공적으로 수정되었습니다!");
 	}
 
+	public static void listAll(TodoList l, String orderby, int ordering) {
+		System.out.println("[전체 목록, 총 " + l.getCount() + "개]");
+		for (TodoItem item : l.getOrderedList(orderby,ordering)) {
+			System.out.println(item.toString());
+		}
+	}
+	
 	public static void listAll(TodoList l) {
-		System.out.println("[전체 목록, 총 " + l.getList().size() + "개]");
+		System.out.println("[전체 목록, 총 " + l.getCount() + "개]");
 		for (TodoItem item : l.getList()) {
-			int count = l.getList().indexOf(item) + 1;
-			System.out.println(count + ". " + item.toString());
+			System.out.println(item.toString());
 		}
 	}
 
 	public static void listCategory(TodoList l) {
-		ArrayList<String> category = new ArrayList<String>();
-		for (TodoItem item : l.getList()) {
-			category.add(item.getCategory());
-			if (l.getList().indexOf(item) != l.getList().size() - 1)
-				System.out.print(item.getCategory() + " / ");
-			else
-				System.out.print(item.getCategory());
+		int count = 0;
+		for (String item : l.getCategories()) {
+			System.out.print(item + " ");
+			count++;
 		}
-		System.out.println("\n총 " + category.size() + "개의 카테고리가 등록되어 있습니다");
+		System.out.println("\n총 " + count + "개의 카테고리가 등록되어 있습니다");
 	}
 
 	public static void find(TodoList l, String key) {
 		boolean found = false;
 		int count = 0;
-		for (TodoItem item : l.getList()) {
-			if (item.getDesc().contains(key) || item.getTitle().contains(key)) {
-				int index = l.getList().indexOf(item) + 1;
-				System.out.println(index + ". " + item.toString());
+		for (TodoItem item : l.getList(key)) {
+				System.out.println(item.toString());
 				found = true;
 				count++;
 			}
-		}
 		if (!found) {
 			System.out.println("해당 키워드가 존재 하지 않습니다!");
 		} else {
@@ -156,29 +147,29 @@ public class TodoUtil {
 		}
 	}
 
-	public static void loadList(TodoList l, String filename) {
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(filename));
-			String oneline;
-			while ((oneline = br.readLine()) != null) {
-				StringTokenizer st = new StringTokenizer(oneline, "##");
-				String title = st.nextToken();
-				String desc = st.nextToken();
-				String date = st.nextToken();
-				String category = st.nextToken();
-				String due_date = st.nextToken();
-				TodoItem t = new TodoItem(title, desc, date, category, due_date);
-				l.addItem(t);
-			}
-			br.close();
-
-			System.out.println("정보 로딩 완료 !!! ");
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+//	public static void loadList(TodoList l, String filename) {
+//		try {
+//			BufferedReader br = new BufferedReader(new FileReader(filename));
+//			String oneline;
+//			while ((oneline = br.readLine()) != null) {
+//				StringTokenizer st = new StringTokenizer(oneline, "##");
+//				String title = st.nextToken();
+//				String desc = st.nextToken();
+//				String date = st.nextToken();
+//				String category = st.nextToken();
+//				String due_date = st.nextToken();
+//				TodoItem t = new TodoItem(title, desc, category, due_date);
+//				l.addItem(t);
+//			}
+//			br.close();
+//
+//			System.out.println("정보 로딩 완료 !!! ");
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 }
