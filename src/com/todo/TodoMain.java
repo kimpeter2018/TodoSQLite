@@ -29,6 +29,11 @@ public class TodoMain {
 				TodoUtil.listAll(l);
 				TodoUtil.deleteItem(l);
 				break;
+				
+			case "DEL":
+				TodoUtil.listAll(l);
+				TodoUtil.deleteItems(l);
+				break;
 
 			case "edit", "3":
 				TodoUtil.listAll(l);
@@ -72,12 +77,15 @@ public class TodoMain {
 				String category = sc.next().trim();
 				TodoUtil.find_cate(l, category);
 				break;
+			case "done", "d", "10":
+				TodoUtil.markDone(l);
+				break;
 
 			case "help", "0":
 				Menu.displaymenu();
 				break;
 
-			case "exit", "10", "q":
+			case "exit", "11", "q":
 				quit = true;
 				break;
 

@@ -10,14 +10,46 @@ public class TodoItem {
 	private String current_date;
 	private String due_date;
 	private String category;
+	private int importance;
+	private String location;
+	private int done;
+	private String doneStr;
 
-	public TodoItem(String title, String desc, String category, String due_date) {
+
+	public TodoItem(String title, String desc, String category, String due_date, int importance, String location, int done) {
 		this.title = title;
 		this.desc = desc;
 		SimpleDateFormat f = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss");
 		this.current_date = f.format(new Date());
 		this.category = category;
 		this.due_date = due_date;
+		this.importance = importance;
+		this.location = location;
+		this.done = done;
+	}
+
+	public int isDone() {
+		return done;
+	}
+	
+	public void setDone(int done) {
+		this.done = done;
+	}
+
+	public int getImportance() {
+		return importance;
+	}
+
+	public void setImportance(int importance) {
+		this.importance = importance;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 	public String getTitle() {
@@ -62,7 +94,11 @@ public class TodoItem {
 
 	@Override
 	public String toString() {
-		return id + " [" + category + "] " + title + " - " + desc + " - " + due_date + " - " + current_date;
+		if (done == 0)
+			doneStr = "Not Done";
+		else 
+			doneStr = "Done";
+		return id + " [" + category + "]( �߿䵵: " + importance + " ) " + title + " - " + desc + " - " + location + " - " + due_date + " - " + current_date + " - " + doneStr;
 	}
 
 	public String toSaveString() {

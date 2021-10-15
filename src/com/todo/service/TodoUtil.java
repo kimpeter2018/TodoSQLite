@@ -28,8 +28,14 @@ public class TodoUtil {
 		desc = sc.nextLine().trim();
 		System.out.print("마감일자를 입력하세요 > ");
 		String due_date = sc.nextLine().trim();
-
-		TodoItem t = new TodoItem(title, desc, category, due_date);
+		System.out.print("중요도를 입력하세요 > ");
+		int importance = sc.nextInt();
+		sc.nextLine();
+		System.out.print("위치를 입력하세요 > ");
+		String location = sc.nextLine().trim();
+		System.out.print("완료 하였습니까?(0 : no | 1 : yes) > ");
+		int done = sc.nextInt();
+		TodoItem t = new TodoItem(title, desc, category, due_date, importance, location, done);
 		if (list.addItem(t) > 0)
 			System.out.println("새 항목이 성공적으로 추가 되었습니다!");
 
@@ -44,6 +50,46 @@ public class TodoUtil {
 
 		if (l.deleteItem(select) > 0)
 			System.out.println("성공적으로 삭제되었습니다!");
+	}
+	
+	public static void deleteItems(TodoList l) {
+
+		Scanner sc = new Scanner(System.in);
+		int count = 0;
+		System.out.print("[항목 삭제]\n" + "몇개의 항목을 삭제하겠습니까? > ");
+		int choice = sc.nextInt();
+		
+		System.out.print("삭제 할 항목들을 입력하세요 > ");
+		ArrayList<Integer> selects = new ArrayList<Integer>();
+		while(count < choice) {
+			selects.add(sc.nextInt());
+			count++;
+		}
+		for(int i : selects) {
+			l.deleteItem(i);
+		}
+		System.out.println("성공적으로 삭제되었습니다!");
+	}
+	
+	public static void markDone(TodoList l) {
+
+		Scanner sc = new Scanner(System.in);
+		int count = 0;
+		int done = 0;
+		System.out.print("[할일 완료]\n" + "몇개의 항목을 완료 처리 하겠습니까? > ");
+		int choice = sc.nextInt();
+		
+		System.out.print("완료한 항목들을 입력하세요 > ");
+		ArrayList<Integer> selects = new ArrayList<Integer>();
+		while(count < choice) {
+			selects.add(sc.nextInt());
+			count++;
+		}
+		for(int i : selects) {
+			done += l.markAsDone(i);
+		}
+		if(done == count)
+			System.out.println("완료 처리되었습니다!");
 	}
 
 	public static void updateItem(TodoList l) {
@@ -71,8 +117,13 @@ public class TodoUtil {
 		String new_description = sc.nextLine().trim();
 		System.out.print("새 마감일자 > ");
 		String new_due_date = sc.nextLine().trim();
-
-		TodoItem t = new TodoItem(new_title, new_description, new_category, new_due_date);
+		System.out.print("새 중요도를 입력하세요 > ");
+		int new_importance = sc.nextInt();
+		System.out.print("새 위치를 입력하세요 > ");
+		String new_location = sc.nextLine().trim();
+		System.out.print("완료 하였습니까?(0 : no | 1 : yes) > ");
+		int new_done = sc.nextInt();
+		TodoItem t = new TodoItem(new_title, new_description, new_category, new_due_date, new_importance, new_location, new_done);
 		t.setId(select);
 		if (l.updateItem(t) > 0)
 			System.out.println("항목이 성공적으로 수정되었습니다!");
@@ -80,11 +131,11 @@ public class TodoUtil {
 
 	public static void listAll(TodoList l, String orderby, int ordering) {
 		System.out.println("[전체 목록, 총 " + l.getCount() + "개]");
-		for (TodoItem item : l.getOrderedList(orderby,ordering)) {
+		for (TodoItem item : l.getOrderedList(orderby, ordering)) {
 			System.out.println(item.toString());
 		}
 	}
-	
+
 	public static void listAll(TodoList l) {
 		System.out.println("[전체 목록, 총 " + l.getCount() + "개]");
 		for (TodoItem item : l.getList()) {
@@ -105,10 +156,10 @@ public class TodoUtil {
 		boolean found = false;
 		int count = 0;
 		for (TodoItem item : l.getList(key)) {
-				System.out.println(item.toString());
-				found = true;
-				count++;
-			}
+			System.out.println(item.toString());
+			found = true;
+			count++;
+		}
 		if (!found) {
 			System.out.println("해당 키워드가 존재 하지 않습니다!");
 		} else {
