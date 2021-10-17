@@ -14,6 +14,7 @@ public class TodoMain {
 //		l.importData("todolist.txt");
 		boolean isList = false;
 		boolean quit = false;
+		boolean showAll = true;
 		Menu.displaymenu();
 		do {
 			Menu.prompt();
@@ -26,44 +27,44 @@ public class TodoMain {
 				break;
 
 			case "del", "2":
-				TodoUtil.listAll(l);
+				TodoUtil.listAll(l, showAll);
 				TodoUtil.deleteItem(l);
 				break;
-				
+
 			case "DEL":
-				TodoUtil.listAll(l);
+				TodoUtil.listAll(l, showAll);
 				TodoUtil.deleteItems(l);
 				break;
 
 			case "edit", "3":
-				TodoUtil.listAll(l);
+				TodoUtil.listAll(l, showAll);
 				TodoUtil.updateItem(l);
 				break;
 
 			case "ls", "4":
-				TodoUtil.listAll(l);
+				TodoUtil.listAll(l, showAll);
 				break;
 
 			case "ls_name_asc", "asc", "5":
 				System.out.println("리스트가 제목순으로 정렬되었습니다.");
-				TodoUtil.listAll(l, "title", 1);
+				TodoUtil.listAll(l, "title", 1, showAll);
 				isList = true;
 				break;
 
 			case "ls_name_desc", "desc", "6":
 				System.out.println("리스트가 제목역순으로 정렬되었습니다.");
-				TodoUtil.listAll(l, "title", 0);
+				TodoUtil.listAll(l, "title", 0, showAll);
 				isList = true;
 				break;
 
 			case "ls_date", "date", "7":
 				System.out.println("리스트가 날짜순으로 정렬되었습니다.");
-				TodoUtil.listAll(l, "due_date", 1);
+				TodoUtil.listAll(l, "due_date", 1, showAll);
 				isList = true;
 				break;
 			case "ls_date_desc", "d_desc", "8":
 				System.out.println("리스트가 날짜역순으로 정렬되었습니다.");
-				TodoUtil.listAll(l, "due_date", 0);
+				TodoUtil.listAll(l, "due_date", 0, showAll);
 				isList = true;
 				break;
 			case "ls_cate", "cate", "9":
@@ -79,6 +80,22 @@ public class TodoMain {
 				break;
 			case "done", "d", "10":
 				TodoUtil.markDone(l);
+				break;
+			case "X":
+				TodoUtil.deleteDone(l);
+				break;
+			case "O":
+				TodoUtil.deleteLate(l);
+				break;
+			case "I":
+				if (showAll) {
+					System.out.println("[중요도 4 이상만 표시 모드로 전환]");
+					showAll = false;
+				} else {
+					System.out.println("[전체 표시 모드로 전환k]");
+					showAll = true;
+				}
+				TodoUtil.listAll(l, showAll);
 				break;
 
 			case "help", "0":

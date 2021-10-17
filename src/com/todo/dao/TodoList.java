@@ -24,7 +24,8 @@ public class TodoList {
 	}
 
 	public int addItem(TodoItem t) {
-		String sql = "insert into list (title, memo, category, current_date, due_date, importance, location, done)" + "values(?,?,?,?,?,?,?,?);";
+		String sql = "insert into list (title, memo, category, current_date, due_date, importance, location, done)"
+				+ "values(?,?,?,?,?,?,?,?);";
 		PreparedStatement pstmt;
 		int count = 0;
 		try {
@@ -43,7 +44,7 @@ public class TodoList {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String sql2 = "insert into category_list(category)" +"values(?);";
+		String sql2 = "insert into category_list(category)" + "values(?);";
 		try {
 			pstmt = conn.prepareStatement(sql2);
 			pstmt.setString(1, t.getCategory());
@@ -66,7 +67,7 @@ public class TodoList {
 			pstmt.setInt(1, index);
 			count = pstmt.executeUpdate();
 			pstmt.close();
-			
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,7 +76,8 @@ public class TodoList {
 	}
 
 	public int updateItem(TodoItem t) {
-		String sql = "update list set title =?, memo=?, category=?, current_date=?, due_date=?, importance=?, location=?, done=?" + " where id = ?;";
+		String sql = "update list set title =?, memo=?, category=?, current_date=?, due_date=?, importance=?, location=?"
+				+ " where id = ?;";
 		PreparedStatement pstmt;
 		int count = 0;
 		try {
@@ -97,7 +99,7 @@ public class TodoList {
 		return count;
 
 	}
-	
+
 	public int markAsDone(int index) {
 		String sql = "update list set done=1" + " where id = ?;";
 		PreparedStatement pstmt;
@@ -131,7 +133,8 @@ public class TodoList {
 				int importance = rs.getInt("importance");
 				String location = rs.getString("location");
 				int done = rs.getInt("done");
-				TodoItem t = new TodoItem(title, desc, category, due_date, importance, location, done);
+				TodoItem t = new TodoItem(title, desc, category, due_date, importance, location);
+				t.setDone(done);
 				t.setId(id);
 				t.setCurrent_date(current_date);
 				list.add(t);
@@ -164,7 +167,8 @@ public class TodoList {
 				int importance = rs.getInt("importance");
 				String location = rs.getString("location");
 				int done = rs.getInt("done");
-				TodoItem t = new TodoItem(title, desc, category, due_date, importance, location, done);
+				TodoItem t = new TodoItem(title, desc, category, due_date, importance, location);
+				t.setDone(done);
 				t.setId(id);
 				t.setCurrent_date(current_date);
 				list.add(t);
@@ -193,13 +197,13 @@ public class TodoList {
 		}
 		return count;
 	}
-	
+
 	public ArrayList<String> getCategories() {
 		ArrayList<String> list = new ArrayList<String>();
 		Statement stmt;
 		try {
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM category_list";
+			String sql = "SELECT DISTINCT category FROM list";
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
 				String category = rs.getString("category");
@@ -211,7 +215,7 @@ public class TodoList {
 		}
 		return list;
 	}
-	
+
 	public ArrayList<TodoItem> getListCategory(String keyword) {
 		ArrayList<TodoItem> list = new ArrayList<TodoItem>();
 		PreparedStatement pstmt;
@@ -231,7 +235,8 @@ public class TodoList {
 				int importance = rs.getInt("importance");
 				String location = rs.getString("location");
 				int done = rs.getInt("done");
-				TodoItem t = new TodoItem(title, desc, category, due_date, importance, location, done);
+				TodoItem t = new TodoItem(title, desc, category, due_date, importance, location);
+				t.setDone(done);
 				t.setId(id);
 				t.setCurrent_date(current_date);
 				list.add(t);
@@ -250,7 +255,7 @@ public class TodoList {
 		try {
 			stmt = conn.createStatement();
 			String sql = "SELECT * FROM list ORDER BY " + orderby;
-			if(ordering == 0) 
+			if (ordering == 0)
 				sql += " desc";
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
@@ -263,7 +268,8 @@ public class TodoList {
 				int importance = rs.getInt("importance");
 				String location = rs.getString("location");
 				int done = rs.getInt("done");
-				TodoItem t = new TodoItem(title, desc, category, due_date, importance, location, done);
+				TodoItem t = new TodoItem(title, desc, category, due_date, importance, location);
+				t.setDone(done);
 				t.setId(id);
 				t.setCurrent_date(current_date);
 				list.add(t);
@@ -275,8 +281,7 @@ public class TodoList {
 		}
 		return list;
 	}
-	
-	
+
 	public int indexOf(TodoItem t) {
 		return list.indexOf(t);
 	}

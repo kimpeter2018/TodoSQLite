@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.todo.dao.TodoItem;
@@ -26,16 +27,35 @@ public class TodoUtil {
 		String category = sc.nextLine().trim();
 		System.out.print("내용을 입력하세요 > ");
 		desc = sc.nextLine().trim();
-		System.out.print("마감일자를 입력하세요 > ");
-		String due_date = sc.nextLine().trim();
+
+		System.out.print("마감일자를 입력하세요 (숫자6자리)> ");
+		String received_date = sc.nextLine().trim();
+		String due_date;
+		if (received_date.contains("/")) {
+			due_date = received_date;
+		} else {
+			int parsed_date = Integer.parseInt(received_date);
+			String array[] = new String[3];
+			int i = 0;
+			while (parsed_date > 1) {
+				int temp = parsed_date % 100;
+				if (temp < 10)
+					array[i] = "0" + Integer.toString(temp);
+				else
+					array[i] = Integer.toString(temp);
+				parsed_date /= 100;
+				i++;
+			}
+			due_date = "20" + array[2] + "/" + array[1] + "/" + array[0];
+		}
 		System.out.print("중요도를 입력하세요 > ");
 		int importance = sc.nextInt();
 		sc.nextLine();
 		System.out.print("위치를 입력하세요 > ");
 		String location = sc.nextLine().trim();
-		System.out.print("완료 하였습니까?(0 : no | 1 : yes) > ");
-		int done = sc.nextInt();
-		TodoItem t = new TodoItem(title, desc, category, due_date, importance, location, done);
+//		System.out.print("완료 하였습니까?(0 : no | 1 : yes) > ");
+//		int done = sc.nextInt();
+		TodoItem t = new TodoItem(title, desc, category, due_date, importance, location);
 		if (list.addItem(t) > 0)
 			System.out.println("새 항목이 성공적으로 추가 되었습니다!");
 
@@ -51,26 +71,66 @@ public class TodoUtil {
 		if (l.deleteItem(select) > 0)
 			System.out.println("성공적으로 삭제되었습니다!");
 	}
-	
+
 	public static void deleteItems(TodoList l) {
 
 		Scanner sc = new Scanner(System.in);
 		int count = 0;
 		System.out.print("[항목 삭제]\n" + "몇개의 항목을 삭제하겠습니까? > ");
 		int choice = sc.nextInt();
-		
+
 		System.out.print("삭제 할 항목들을 입력하세요 > ");
 		ArrayList<Integer> selects = new ArrayList<Integer>();
-		while(count < choice) {
+		while (count < choice) {
 			selects.add(sc.nextInt());
 			count++;
 		}
-		for(int i : selects) {
+		for (int i : selects) {
 			l.deleteItem(i);
 		}
 		System.out.println("성공적으로 삭제되었습니다!");
 	}
-	
+
+	public static void deleteLate(TodoList l) {
+
+		Scanner sc = new Scanner(System.in);
+		System.out.print("날짜가 지난 할일들을 모두 삭제하시겠습니까? (Press any key for yes, press n or N for no) > ");
+		String choice = sc.next();
+		sc.nextLine();
+		if (choice.equals("N") || choice.equals("n"))
+			return;
+		else {
+			SimpleDateFormat f = new SimpleDateFormat("yyyy/MM/dd");
+			String current_date = f.format(new Date());
+			ArrayList<TodoItem> list = l.getList();
+			for (TodoItem item : list) {
+				if (item.getDue_date().compareTo(current_date) < 0) {
+					l.deleteItem(item.getId());
+				}
+			}
+			System.out.println("성공적으로 삭제되었습니다!");
+		}
+	}
+
+	public static void deleteDone(TodoList l) {
+
+		Scanner sc = new Scanner(System.in);
+		System.out.print("완료한 할일들을 모두 삭제하시겠습니까? (Press any key for yes, press n or N for no) > ");
+		String choice = sc.next();
+		sc.nextLine();
+		if (choice.equals("N") || choice.equals("n"))
+			return;
+		else {
+			ArrayList<TodoItem> list = l.getList();
+			for (TodoItem item : list) {
+				if (item.isDone() == 1) {
+					l.deleteItem(item.getId());
+				}
+			}
+			System.out.println("성공적으로 삭제되었습니다!");
+		}
+	}
+
 	public static void markDone(TodoList l) {
 
 		Scanner sc = new Scanner(System.in);
@@ -78,17 +138,17 @@ public class TodoUtil {
 		int done = 0;
 		System.out.print("[할일 완료]\n" + "몇개의 항목을 완료 처리 하겠습니까? > ");
 		int choice = sc.nextInt();
-		
+
 		System.out.print("완료한 항목들을 입력하세요 > ");
 		ArrayList<Integer> selects = new ArrayList<Integer>();
-		while(count < choice) {
+		while (count < choice) {
 			selects.add(sc.nextInt());
 			count++;
 		}
-		for(int i : selects) {
+		for (int i : selects) {
 			done += l.markAsDone(i);
 		}
-		if(done == count)
+		if (done == count)
 			System.out.println("완료 처리되었습니다!");
 	}
 
@@ -99,10 +159,6 @@ public class TodoUtil {
 		System.out.print("[항목 수정]\n" + "수정할 항목의 번호를 입력하세요 > ");
 		int select = sc.nextInt();
 
-		if (select > l.getList().size()) {
-			System.out.println("해당 번호는 존재하지 않습니다.");
-			return;
-		}
 		sc.nextLine();
 
 		System.out.print("새 제목 > ");
@@ -115,31 +171,62 @@ public class TodoUtil {
 		String new_category = sc.nextLine().trim();
 		System.out.print("새 내용 > ");
 		String new_description = sc.nextLine().trim();
-		System.out.print("새 마감일자 > ");
-		String new_due_date = sc.nextLine().trim();
+
+		System.out.print("새 마감일자 (숫자6자리)> ");
+		String received_date = sc.nextLine().trim();
+		String new_due_date;
+		if (received_date.contains("/")) {
+			new_due_date = received_date;
+		} else {
+			int parsed_date = Integer.parseInt(received_date);
+			String array[] = new String[3];
+			int i = 0;
+			while (parsed_date > 1) {
+				int temp = parsed_date % 100;
+				if (temp < 10)
+					array[i] = "0" + Integer.toString(temp);
+				else
+					array[i] = Integer.toString(temp);
+				parsed_date /= 100;
+				i++;
+			}
+			new_due_date = "20" + array[2] + "/" + array[1] + "/" + array[0];
+		}
+
 		System.out.print("새 중요도를 입력하세요 > ");
 		int new_importance = sc.nextInt();
+		sc.nextLine();
 		System.out.print("새 위치를 입력하세요 > ");
 		String new_location = sc.nextLine().trim();
-		System.out.print("완료 하였습니까?(0 : no | 1 : yes) > ");
-		int new_done = sc.nextInt();
-		TodoItem t = new TodoItem(new_title, new_description, new_category, new_due_date, new_importance, new_location, new_done);
+//		System.out.print("완료 하였습니까?(0 : no | 1 : yes) > ");
+//		int new_done = sc.nextInt();
+		TodoItem t = new TodoItem(new_title, new_description, new_category, new_due_date, new_importance, new_location);
 		t.setId(select);
 		if (l.updateItem(t) > 0)
 			System.out.println("항목이 성공적으로 수정되었습니다!");
 	}
 
-	public static void listAll(TodoList l, String orderby, int ordering) {
+	public static void listAll(TodoList l, String orderby, int ordering, boolean showAll) {
 		System.out.println("[전체 목록, 총 " + l.getCount() + "개]");
 		for (TodoItem item : l.getOrderedList(orderby, ordering)) {
-			System.out.println(item.toString());
+			if (!showAll) {
+				if (item.getImportance() > 3)
+					System.out.println(item.toString());
+			} else
+				System.out.println(item.toString());
 		}
 	}
 
-	public static void listAll(TodoList l) {
+	public static void listAll(TodoList l, boolean showAll) {
 		System.out.println("[전체 목록, 총 " + l.getCount() + "개]");
 		for (TodoItem item : l.getList()) {
-			System.out.println(item.toString());
+			if (!showAll) {
+				if (item.getImportance() > 3)
+					System.out.println(item.toString());
+			} else {
+
+				System.out.println(item.toString());
+				}
 		}
 	}
 

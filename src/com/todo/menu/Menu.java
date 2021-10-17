@@ -15,8 +15,11 @@ public class Menu {
 		System.out.println("9. 카테고리 목록 ( ls_cate or cate )");
 		System.out.println("10. 완료 표시 ( done or d )");
 		System.out.println("11. 종료 (exit or q)\n");
+		System.out.println("마감 날짜 지난 할일 지우기(X)");
+		System.out.println("완료한 할일 지우기(O)\n");
 		System.out.println("키워드로 항목 검색 (find 키워드)");
-		System.out.println("키워드로 카테고리 검색 (find_cate 카테고리)");
+		System.out.println("키워드로 카테고리 검색 (find_cate 카테고리)\n");
+		System.out.println("중요도 4이상만 표시하기 ( I )");
 	}
 
 	public static void prompt() {

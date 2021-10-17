@@ -16,7 +16,7 @@ public class TodoItem {
 	private String doneStr;
 
 
-	public TodoItem(String title, String desc, String category, String due_date, int importance, String location, int done) {
+	public TodoItem(String title, String desc, String category, String due_date, int importance, String location) {
 		this.title = title;
 		this.desc = desc;
 		SimpleDateFormat f = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss");
@@ -25,7 +25,7 @@ public class TodoItem {
 		this.due_date = due_date;
 		this.importance = importance;
 		this.location = location;
-		this.done = done;
+		this.done = 0;
 	}
 
 	public int isDone() {
