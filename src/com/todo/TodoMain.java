@@ -81,10 +81,10 @@ public class TodoMain {
 			case "done", "d", "10":
 				TodoUtil.markDone(l);
 				break;
-			case "X":
+			case "O":
 				TodoUtil.deleteDone(l);
 				break;
-			case "O":
+			case "X":
 				TodoUtil.deleteLate(l);
 				break;
 			case "I":
